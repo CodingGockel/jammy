@@ -20,14 +20,14 @@ const uint8_t SPI_SPEED = 16000000;
 const uint8_t MIN_CHANNEL = 2;
 const uint8_t MAX_CHANNEL = 86;
 
-unsigned int radio1_flag = 0;  // VSPI// Flag variable to keep track of direction
-int radio1_ch = 45;            // Variable to store value of ch
+uint8_t radio1_flag = 0;  // VSPI// Flag variable to keep track of direction
+uint8_t radio1_ch = 45;            // Variable to store value of ch
 
 
 // radio1 on VSPI
 RF24 radio1(VSPI_CE_PIN, VSPI_CSN_PIN, SPI_SPEED);
 
-void goThroughChannelsMode()
+void waveThroughCHannelsMode(const uint8_t MIN, const uint8_t MAX)
 {
 
     if (radio1_flag == 0){ 
@@ -37,27 +37,25 @@ void goThroughChannelsMode()
         radio1_ch -= 1;
     }
 
-    if ((radio1_ch >= MAX_CHANNEL) && (radio1_flag == 0)){
+    if ((radio1_ch >= MAX) && (radio1_flag == 0)){
         radio1_flag = 1; 
     }
-    else if ((radio1_ch <= MIN_CHANNEL) && (radio1_flag == 1)){          
+    else if ((radio1_ch <= MIN) && (radio1_flag == 1)){          
         radio1_flag = 0;
     }
 
     radio1.setChannel(radio1_ch);
 }
 
-void jamBL(){
-  for (int i = 1; i < 80; i = i + 2) {
+void iterateChannels(const uint8_t MIN, const uint8_t MAX, const uint8_t STEPS){
+  for (uint8_t i = MIN; i <= MAX; i = i + STEPS) {
       radio1.setChannel(i); 
     }
 }
 
-void randomChannelMode()
+void randomChannelMode(const uint8_t MAX)
 {
-    ////RANDOM CHANNEL
-    radio1.setChannel(random(86));
-
+    radio1.setChannel(random(MAX));
 }
 
 void initRadio1()
@@ -97,6 +95,6 @@ void setup() {
 }
 
 void loop(void) {
-  jamBL();
+  iterateChannels(0, 86, 2); //BL RANGE
 }
 
